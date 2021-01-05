@@ -13,8 +13,11 @@ file_activity(){
     echo View PDF
     echo Watch Video
     echo Execute
+    echo Delete
 }
 
+# If the user has a different editor set in their ENV then
+# this selector will use that instead of vim
 edit_select(){
     if [ -z $EDITOR ]
     then
@@ -30,9 +33,12 @@ echo -n "Root of the tree: "
 read -r base
 
 # fzf does not play nice with ~
-if [ $base == '~' ]
+if [ $base == "~" ]
 then
     base_dir=$HOME
+elif [[ $base = ~* ]]
+then
+    base_dir=$HOME/${base#~*}
 else
     base_dir=${base}
 fi
@@ -43,6 +49,8 @@ new_dir=${base_dir}/$(ls -a ${base_dir} | fzf)
 while [ -d ${new_dir} ]
 do
     next_dir=$(ls -a ${new_dir} | fzf)
+    # Need a way to gracefully exit the script
+    [ -z ${next_dir} ] && echo "No Directory choosen" && exit 1
     new_dir=${new_dir}/${next_dir}
 done
 
@@ -83,6 +91,10 @@ case $result in
         # simply inform them they can not exec.
         [ -x ${new_dir} ] && echo "You have permission" && echo ${new_dir} ||\
          echo "You do not have permission"
+        ;;
+"Delete")
+        # Sometimes you just want to start over fresh.
+        rm -i ${new_dir}
         ;;
 *)
         # Quit playing around
