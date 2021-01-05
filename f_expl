@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# This is a simple File Explore script. It allows you
+# to interactively traverse the directory tree of your
+# system, and then select files to either read, write,
+# or execute
+
+# Display for the types of permissions
+file_activity(){
+    echo Read
+    echo Write
+    echo Execute
+}
+
+# Ask the user where to start
+echo -n "Root of the tree: "
+read -r base
+
+# fzf does not play nice with ~
+if [ $base == '~' ]
+then
+    base_dir=$HOME
+else
+    base_dir=${base}
+fi
+
+new_dir=${base_dir}/$(ls -a ${base_dir} | fzf)
+
+# As long as directories are being selected continue in the env
+while [ -d ${new_dir} ]
+do
+    next_dir=$(ls -a ${new_dir} | fzf)
+    new_dir=${new_dir}/${next_dir}
+done
+
+# User desides what they want to do with the file
+result=$(file_activity | fzf)
+
+case $result in
+"Read")
+        # Can user read the file? If so, it will open.
+        if [ -z $EDITOR ]
+        then
+            [ -w ${new_dir} ] && vim ${new_dir}
+        else
+            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR 
+        fi
+        ;;
+"Write")
+        # Can user write the file? If so, it will open.
+        if [ -z $EDITOR ]
+        then
+            [ -w ${new_dir} ] && vim ${new_dir}
+        else
+            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR
+        fi
+        ;;
+"Execute")
+        # If user can exec the file the script will inform them and
+        # give them the relevant path to the file. Otherwise it will
+        # simply inform them they can not exec.
+        [ -x ${new_dir} ] && echo "You have permission" && echo ${new_dir} ||\
+         echo "You do not have permission"
+        ;;
+*)
+        # Quit playing around
+        echo "No proper value given"
+        exit 1
+esac
