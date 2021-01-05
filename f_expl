@@ -43,7 +43,8 @@ case $result in
         then
             [ -r ${new_dir} ] && vim ${new_dir} || echo "No read Permissions"
         else
-            [ -r ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR 
+            [ -r ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR ||\
+            echo "No read Permissions"
         fi
         ;;
 "Write")
@@ -52,7 +53,8 @@ case $result in
         then
             [ -w ${new_dir} ] && vim ${new_dir} || echo "No write Permissions"
         else
-            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR
+            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR ||\
+            echo "No write Permissions"
         fi
         ;;
 "Execute")
