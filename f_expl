@@ -43,19 +43,19 @@ else
     base_dir=${base}
 fi
 
-new_dir=${base_dir}/$(ls -a ${base_dir} | fzf)
+new_dir=${base_dir}/$(ls -a ${base_dir} | fzf --reverse)
 
 # As long as directories are being selected continue in the env
 while [ -d ${new_dir} ]
 do
-    next_dir=$(ls -a ${new_dir} | fzf)
+    next_dir=$(ls -a ${new_dir} | fzf --reverse)
     # Need a way to gracefully exit the script
     [ -z ${next_dir} ] && echo "No Directory choosen" && exit 1
     new_dir=${new_dir}/${next_dir}
 done
 
 # User desides what they want to do with the file
-result=$(file_activity | fzf)
+result=$(file_activity | fzf --reverse)
 
 case $result in
 "Read")
@@ -79,7 +79,7 @@ case $result in
         list=$(ls ${new_dir} | awk '/list/ {print "video.list"}' )
         if [ ${list} == "video.list" ]
         then
-            vid=$(awk '{print}' ${new_dir} | fzf)
+            vid=$(awk '{print}' ${new_dir} | fzf --reverse)
             [ -r ${new_dir} ] && mpv ${vid} || echo "Unable to play Video"
         else
             [ -r ${new_dir} ] && mpv ${new_dir} || echo "Unable to play Video"
