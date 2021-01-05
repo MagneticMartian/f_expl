@@ -41,9 +41,9 @@ case $result in
         # Can user read the file? If so, it will open.
         if [ -z $EDITOR ]
         then
-            [ -w ${new_dir} ] && vim ${new_dir}
+            [ -r ${new_dir} ] && vim ${new_dir}
         else
-            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR 
+            [ -r ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR 
         fi
         ;;
 "Write")
