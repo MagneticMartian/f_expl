@@ -12,6 +12,16 @@ file_activity(){
     echo Execute
 }
 
+edit_select(){
+    if [ -z $EDITOR ]
+    then
+        [ -$1 $2 ] && vim $2 || echo "No $3 Permissions"
+    else
+        [ -$1 $2 ] && ls $2 | xargs -r -o $EDITOR ||\
+        echo "No $3 Permissions"     
+    fi
+}
+
 # Ask the user where to start
 echo -n "Root of the tree: "
 read -r base
@@ -39,23 +49,11 @@ result=$(file_activity | fzf)
 case $result in
 "Read")
         # Can user read the file? If so, it will open.
-        if [ -z $EDITOR ]
-        then
-            [ -r ${new_dir} ] && vim ${new_dir} || echo "No read Permissions"
-        else
-            [ -r ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR ||\
-            echo "No read Permissions"
-        fi
+        edit_select "r" ${new_dir} "read"
         ;;
 "Write")
         # Can user write the file? If so, it will open.
-        if [ -z $EDITOR ]
-        then
-            [ -w ${new_dir} ] && vim ${new_dir} || echo "No write Permissions"
-        else
-            [ -w ${new_dir} ] && ls ${new_dir} | xargs -r -o $EDITOR ||\
-            echo "No write Permissions"
-        fi
+        edit_select "w" ${new_dir} "write"
         ;;
 "Execute")
         # If user can exec the file the script will inform them and
