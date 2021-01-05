@@ -9,6 +9,9 @@
 file_activity(){
     echo Read
     echo Write
+    echo View Image
+    echo View PDF
+    echo Watch Video
     echo Execute
 }
 
@@ -55,6 +58,25 @@ case $result in
         # Can user write the file? If so, it will open.
         edit_select "w" ${new_dir} "write"
         ;;
+"View Image")
+        # What kind of picture you trying to look at
+        [ -r ${new_dir} ] && sxiv ${new_dir} || echo "Unable to open Picture"
+        ;;
+"View PDF")
+        # Look at you exercising your brain
+        [ -r ${new_dir} ] && epdfview ${new_dir} || echo "Unable to open PDF"
+        ;;
+"Watch Video")
+        # Ok pics are one thing but this is a Christian Server Sir
+        list=$(ls ${new_dir} | awk '/list/ {print "video.list"}' )
+        if [ ${list} == "video.list" ]
+        then
+            vid=$(awk '{print}' ${new_dir} | fzf)
+            [ -r ${new_dir} ] && mpv ${vid} || echo "Unable to play Video"
+        else
+            [ -r ${new_dir} ] && mpv ${new_dir} || echo "Unable to play Video"
+        fi
+        ;;
 "Execute")
         # If user can exec the file the script will inform them and
         # give them the relevant path to the file. Otherwise it will
@@ -67,3 +89,6 @@ case $result in
         echo "No proper value given"
         exit 1
 esac
+
+# Remove the junk from the screen
+clear
