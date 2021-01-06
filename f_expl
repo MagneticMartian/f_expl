@@ -49,11 +49,13 @@ fi
 # Black Magic
 if [ ! -d ${base_dir} ]
 then
+    # Now you see me
     alias goto="cat > /dev/null <<"
     new_dir=${base_dir}
 else
     alias goto="#"
 fi
+# Now You don't
 goto "#GOTO"
 # END Black Magic
 
