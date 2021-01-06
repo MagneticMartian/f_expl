@@ -5,6 +5,9 @@
 # system, and then select files to either read, write,
 # or execute
 
+# We are going to do a little black magic later
+shopt -s expand_aliases
+
 # Display for the types of permissions
 file_activity(){
     echo Read
@@ -43,6 +46,17 @@ else
     base_dir=${base}
 fi
 
+# Black Magic
+if [ ! -d ${base_dir} ]
+then
+    alias goto="cat > /dev/null <<"
+    new_dir=${base_dir}
+else
+    alias goto="#"
+fi
+goto "#GOTO"
+# END Black Magic
+
 new_dir=${base_dir}/$(ls -a ${base_dir} | fzf --reverse)
 
 # As long as directories are being selected continue in the env
@@ -53,6 +67,9 @@ do
     [ -z ${next_dir} ] && echo "No Directory choosen" && exit 1
     new_dir=${new_dir}/${next_dir}
 done
+
+# Black Magic Call
+#GOTO
 
 # User desides what they want to do with the file
 result=$(file_activity | fzf --reverse)
@@ -76,8 +93,8 @@ case $result in
         ;;
 "Watch Video")
         # Ok pics are one thing but this is a Christian Server Sir
-        list=$(ls ${new_dir} | awk '/list/ {print "video.list"}' )
-        if [ ${list} == "video.list" ]
+        list=$(ls ${new_dir} | awk '/list/ {print "videos.list"}' )
+        if [ ${list} == "videos.list" ]
         then
             vid=$(awk '{print}' ${new_dir} | fzf --reverse)
             [ -r ${new_dir} ] && mpv ${vid} || echo "Unable to play Video"
