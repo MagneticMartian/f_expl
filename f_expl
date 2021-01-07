@@ -7,16 +7,28 @@
 
 # We are going to do a little black magic later
 shopt -s expand_aliases
+alias List="ls -ilh"
+alias fzf="fzf --reverse"
 
 # Display for the types of permissions
 file_activity(){
     echo Read
     echo Write
+    echo Details
     echo View Image
     echo View PDF
     echo Watch Video
     echo Execute
     echo Delete
+}
+
+file_info(){
+    echo File Type
+    echo Permissions
+    echo Ownership
+    echo Size
+    echo Date Created
+    echo Inode
 }
 
 # If the user has a different editor set in their ENV then
@@ -52,22 +64,20 @@ fi
 # Black Magic
 if [ ! -d ${base_dir} ]
 then
-    # Now you see me
     alias goto="cat > /dev/null <<"
     new_dir=${base_dir}
 else
     alias goto="#"
 fi
-# Now You don't
 goto "#GOTO"
 # END Black Magic
 
-new_dir=${base_dir}/$(ls ${vis_flag} ${base_dir} | fzf --reverse)
+new_dir=${base_dir}/$(ls ${vis_flag} ${base_dir} | fzf)
 
 # As long as directories are being selected continue in the env
 while [ -d ${new_dir} ]
 do
-    next_dir=$(ls ${vis_flag} ${new_dir} | fzf --reverse)
+    next_dir=$(ls ${vis_flag} ${new_dir} | fzf)
     # Need a way to gracefully exit the script
     [ -z ${next_dir} ] && echo "No Directory choosen" && exit 1
     new_dir=${new_dir}/${next_dir}
@@ -77,7 +87,7 @@ done
 #GOTO
 
 # User desides what they want to do with the file
-result=$(file_activity | fzf --reverse)
+result=$(file_activity | fzf)
 
 case $result in
 "Read")
@@ -87,6 +97,32 @@ case $result in
 "Write")
         # Can user write the file? If so, it will open.
         edit_select "w" ${new_dir} "write"
+        ;;
+"Details")
+        # Display different bits of information about the file selected
+        detail=$(file_info | fzf)
+        case $detail in
+        "File Type")
+                file ${new_dir} | awk '{print $2}' | fzf
+                ;;
+        "Permissions")
+                List ${new_dir} | awk '{print $2}' | fzf
+                ;;
+        "Ownership")
+                List ${new_dir} | awk '{print $4 " " $5}' | fzf
+                ;;
+        "Size")
+                List ${new_dir} | awk '{print $6}' | fzf
+                ;;
+        "Date Created")
+                List ${new_dir} | awk '{print $7 " " $8 " " $9}' | fzf
+                ;;
+        "Inode")
+                List ${new_dir} | awk '{print $1}' | fzf
+                ;;
+        *)
+                exit 1
+        esac    
         ;;
 "View Image")
         # What kind of picture you trying to look at
@@ -101,7 +137,7 @@ case $result in
         list=$(ls ${new_dir} | awk '/list/ {print "videos.list"}' )
         if [ ${list} == "videos.list" ]
         then
-            vid=$(awk '{print}' ${new_dir} | fzf --reverse)
+            vid=$(awk '{print}' ${new_dir} | fzf)
             [ -r ${new_dir} ] && mpv ${vid} || echo "Unable to play Video"
         else
             [ -r ${new_dir} ] && mpv ${new_dir} || echo "Unable to play Video"
