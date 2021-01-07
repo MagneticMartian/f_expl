@@ -31,6 +31,9 @@ edit_select(){
     fi
 }
 
+# Allow user to choose if they see hidden files or not
+[[ $1 == "-a" ]] && vis_flag="-a" || vis_flag=""
+
 # Ask the user where to start
 echo -n "Root of the tree: "
 read -r base
@@ -59,12 +62,12 @@ fi
 goto "#GOTO"
 # END Black Magic
 
-new_dir=${base_dir}/$(ls -a ${base_dir} | fzf --reverse)
+new_dir=${base_dir}/$(ls ${vis_flag} ${base_dir} | fzf --reverse)
 
 # As long as directories are being selected continue in the env
 while [ -d ${new_dir} ]
 do
-    next_dir=$(ls -a ${new_dir} | fzf --reverse)
+    next_dir=$(ls ${vis_flag} ${new_dir} | fzf --reverse)
     # Need a way to gracefully exit the script
     [ -z ${next_dir} ] && echo "No Directory choosen" && exit 1
     new_dir=${new_dir}/${next_dir}
