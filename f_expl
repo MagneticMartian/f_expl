@@ -130,7 +130,7 @@ case $result in
         ;;
 "View PDF")
         # Look at you exercising your brain
-        [ -r ${new_dir} ] && epdfview ${new_dir} || echo "Unable to open PDF"
+        [ -r ${new_dir} ] && mupdf ${new_dir} || echo "Unable to open PDF"
         ;;
 "Watch Video")
         # Ok pics are one thing but this is a Christian Server Sir
