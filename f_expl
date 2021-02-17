@@ -8,13 +8,14 @@
 # We are going to do a little black magic later
 shopt -s expand_aliases
 alias List="ls -ilh"
-alias fzf="fzf --reverse"
+alias fzf="fzf -m --reverse"
 
 # Display for the types of permissions
 file_activity(){
     echo Read
     echo Write
     echo Details
+    echo Copy
     echo View Image
     echo View PDF
     echo Watch Video
@@ -72,7 +73,7 @@ fi
 goto "#GOTO"
 # END Black Magic
 
-new_dir=${base_dir}/$(ls ${vis_flag} ${base_dir} | fzf)
+new_dir="${base_dir}/$(ls ${vis_flag} ${base_dir} | fzf)"
 
 # As long as directories are being selected continue in the env
 while [ -d ${new_dir} ]
@@ -124,13 +125,26 @@ case $result in
                 exit 1
         esac    
         ;;
+"Copy")
+        echo 'Which directory will files be copied too?'
+        echo 'Location MUST be an absolute path'
+        read -r loc
+        files=$(echo ${new_dir} | sed 's/^..//g' | awk -F \/ '{print $NF}')
+        dir=$(echo ${new_dir} | awk -F \/ 'sub(FS $NF,x)')
+        for i in $files:
+        do
+            sel_file=$(echo "${dir}/$i" | awk -F \: '{print $1}')
+            echo $sel_file
+            cp $sel_file $loc
+        done
+        ;; 
 "View Image")
         # What kind of picture you trying to look at
         [ -r ${new_dir} ] && sxiv ${new_dir} || echo "Unable to open Picture"
         ;;
 "View PDF")
         # Look at you exercising your brain
-        [ -r ${new_dir} ] && mupdf ${new_dir} || echo "Unable to open PDF"
+        [ -r ${new_dir} ] && epdfview ${new_dir} || echo "Unable to open PDF"
         ;;
 "Watch Video")
         # Ok pics are one thing but this is a Christian Server Sir
