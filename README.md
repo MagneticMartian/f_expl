@@ -8,5 +8,5 @@ Tested on Void (x86_64 {glibc, musl}, x86) and Linux Mint 20
 
 Still under active development. I've just slowed down a bit.
 
-# Format for video.list
+## Format for video.list
 https://url.example.com/more/stuff/for/example 'Name of Video'
