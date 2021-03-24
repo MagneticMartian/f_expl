@@ -188,7 +188,6 @@ case $result in
         ;;
 "Delete")
         # Sometimes you just want to start over fresh.
-        #rm -i ${new_dir}
         multi_file 'rm'
         ;;
 *)
