@@ -10,12 +10,41 @@ shopt -s expand_aliases
 alias List="ls -ilh"
 alias fzf="fzf -m --reverse"
 
+multi_file() {
+    case $1 in
+    'cp')
+        echo 'Which directory will files be copied too?'
+        echo 'Location MUST be an absolute path'
+        read -r loc
+        ;;
+    'mv')
+        echo 'Which directory will files be moved too?'
+        echo 'Location MUST be an absolute path'
+        read -r loc
+        ;;
+    'rm')
+        echo 'God speed'
+        ;;
+    *)
+        echo 'Please enter command type'
+    esac
+    files=$(echo ${new_dir} | sed 's/^..//g' | awk -F \/ '{print $NF}')
+    dir=$(echo ${new_dir} | awk -F \/ 'sub(FS $NF,x)')
+    for i in $files:
+    do
+        sel_file=$(echo "${dir}/$i" | awk -F \: '{print $1}')
+        echo $sel_file
+        [[ $1 != 'rm' ]] && $1 ${sel_file} ${loc} || $1 ${sel_file}
+    done
+}
+
 # Display for the types of permissions
 file_activity(){
     echo Read
     echo Write
     echo Details
     echo Copy
+    echo Move
     echo View Image
     echo View PDF
     echo Watch Video
@@ -126,17 +155,10 @@ case $result in
         esac    
         ;;
 "Copy")
-        echo 'Which directory will files be copied too?'
-        echo 'Location MUST be an absolute path'
-        read -r loc
-        files=$(echo ${new_dir} | sed 's/^..//g' | awk -F \/ '{print $NF}')
-        dir=$(echo ${new_dir} | awk -F \/ 'sub(FS $NF,x)')
-        for i in $files:
-        do
-            sel_file=$(echo "${dir}/$i" | awk -F \: '{print $1}')
-            echo $sel_file
-            cp $sel_file $loc
-        done
+        multi_file 'cp'
+        ;;
+"Move")
+        multi_file 'mv'
         ;; 
 "View Image")
         # What kind of picture you trying to look at
@@ -166,7 +188,8 @@ case $result in
         ;;
 "Delete")
         # Sometimes you just want to start over fresh.
-        rm -i ${new_dir}
+        #rm -i ${new_dir}
+        multi_file 'rm'
         ;;
 *)
         # Quit playing around
